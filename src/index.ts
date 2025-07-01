@@ -1,4 +1,4 @@
-import { CommandsRegistry, registerCommand, runCommand } from "./commands/command";
+import { CommandsRegistry, middlewareLoggedIn, registerCommand, runCommand } from "./commands/command";
 import { handlerAddFeed, handlerAgg, handlerFeeds, handlerFollow, handlerFollowing } from "./commands/rss";
 import { handlerLogin, handlerRegister, handlerReset, handlerUsers } from "./commands/users";
 
@@ -16,11 +16,10 @@ async function main() {
   registerCommand(registry, "reset", handlerReset);
   registerCommand(registry, "users", handlerUsers);
   registerCommand(registry, "agg", handlerAgg);
-  registerCommand(registry, "addfeed", handlerAddFeed);
+  registerCommand(registry, "addfeed", middlewareLoggedIn(handlerAddFeed));
   registerCommand(registry, "feeds", handlerFeeds);
-  registerCommand(registry, "follow", handlerFollow);
-  registerCommand(registry, "following", handlerFollowing);
-  // console.log(registry);
+  registerCommand(registry, "follow", middlewareLoggedIn(handlerFollow));
+  registerCommand(registry, "following", middlewareLoggedIn(handlerFollowing));
 
   try {
     await runCommand(registry, cmdName, ...cmdArgs);

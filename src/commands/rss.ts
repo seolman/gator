@@ -17,14 +17,12 @@ export async function handlerAgg(cmdName: string, ...args: string[]) {
   console.dir(feed, {depth: null});
 }
 
-export async function handlerAddFeed(cmdName: string, ...args: string[]) {
+export async function handlerAddFeed(cmdName: string, user: User, ...args: string[]) {
   if (args.length !== 2) {
     throw new Error(`usage: ${cmdName} <name> <url>`);
   }
 
   const [name, url] = args;
-  const config = readConfig();
-  const user = await getUserByName(config.currentUserName);
   const feed = await createFeed(name, url, user.id);
   const feedFollow = await createFeedFollow(user.id, feed.id);
   printFeed(feed, user);
@@ -48,27 +46,23 @@ export async function handlerFeeds(cmdName: string, ...args: string[]) {
   });
 }
 
-export async function handlerFollow(cmdName: string, ...args: string[]) {
+export async function handlerFollow(cmdName: string, user: User, ...args: string[]) {
   if (args.length !== 1) {
     throw new Error(`usage: ${cmdName} <url>`);
   }
 
   const url = args[0];
-  const config = readConfig()
-  const user = await getUserByName(config.currentUserName);
   const feed = await getFeedByURL(url);
   const feedFollow = await createFeedFollow(user.id, feed.id);
   console.log(`- ${feed.name}`);
   console.log(`- ${user.name}`);
 }
 
-export async function handlerFollowing(cmdName: string, ...args: string[]) {
+export async function handlerFollowing(cmdName: string, user: User, ...args: string[]) {
   if (args.length !== 0) {
     throw new Error(`usage: ${cmdName}`);
   }
 
-  const config = readConfig()
-  const user = await getUserByName(config.currentUserName);
   const feedFollows = await getFeedFollowsForUser(user.id);
   if (feedFollows.length === 0) {
     console.log("no feed follows for this user");
