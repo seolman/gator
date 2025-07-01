@@ -1,5 +1,6 @@
 import { createFeed, getFeedByURL, getFeeds, getNextFeedToFetch, markFeedFetched } from "src/db/queries/feeds";
 import { createFeedFollow, deleteFeedFollowByUserAndUrl, getFeedFollowsForUser } from "src/db/queries/follows";
+import { createPost, getPostsForUser } from "src/db/queries/posts";
 import type { Feed, User } from "src/db/schema";
 import { fetchFeed } from "src/rss";
 
@@ -53,10 +54,9 @@ export async function handlerFeeds(cmdName: string, ...args: string[]) {
     console.log("no feeds found");
     return;
   }
-  
+
   feeds.forEach((feed) => {
-    console.log(`- ${feed.feedName}`);
-    console.log(`- ${feed.userName}`);
+    console.log(`- ${feed.feedName} [${feed.userName}]`);
   });
 }
 
@@ -92,7 +92,7 @@ export async function handlerUnfollow(cmdName: string, user: User, ...args: stri
   if (args.length !== 1) {
     throw new Error(`usage: ${cmdName} <url>`);
   }
-  
+
   const url = args[0];
   await deleteFeedFollowByUserAndUrl(user.id, url);
   console.log(`unfollowed feed: ${url}`);
@@ -129,10 +129,33 @@ async function scrapeFeeds() {
   await markFeedFetched(feed.id);
   const feedData = await fetchFeed(feed.url);
   console.log(`Feed ${feed.name} collected. ${feedData.channel.item.length} posts found`);
+  for (const item of feedData.channel.item) {
+    createPost({
+      title: item.title,
+      url: item.link,
+      description: item.description,
+      publishedAt: new Date(item.pubDate),
+      feedId: feed.id
+    })
+  }
 }
 
 function handleError(err: unknown) {
   console.error(
     `Error scraping feeds: ${err instanceof Error ? err.message : err}`,
   );
+}
+
+export async function handlerBrowse(cmdName: string, user: User, ...args: string[]) {
+  if (args.length !== 0 && args.length !== 1) {
+    throw new Error(`usage: ${cmdName} [limit]`);
+  }
+
+  const limit = args[0] ? parseInt(args[0], 10) : 2;
+  const posts = await getPostsForUser(user.id, limit);
+  posts.forEach((post) => {
+    console.log(`- [${post.feedName}] ${post.title}`);
+    console.log(`  ${post.url}`);
+    console.log();
+  });
 }
