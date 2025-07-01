@@ -23,3 +23,9 @@ export async function getFeeds() {
 
   return result;
 }
+
+export async function getFeedByURL(url: string) {
+  const [result] = await db.select().from(feeds).where(eq(feeds.url, url));
+
+  return result;
+}

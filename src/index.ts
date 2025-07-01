@@ -1,5 +1,5 @@
 import { CommandsRegistry, registerCommand, runCommand } from "./commands/command";
-import { handlerAddFeed, handlerAgg, handlerFeeds } from "./commands/rss";
+import { handlerAddFeed, handlerAgg, handlerFeeds, handlerFollow, handlerFollowing } from "./commands/rss";
 import { handlerLogin, handlerRegister, handlerReset, handlerUsers } from "./commands/users";
 
 async function main() {
@@ -18,6 +18,8 @@ async function main() {
   registerCommand(registry, "agg", handlerAgg);
   registerCommand(registry, "addfeed", handlerAddFeed);
   registerCommand(registry, "feeds", handlerFeeds);
+  registerCommand(registry, "follow", handlerFollow);
+  registerCommand(registry, "following", handlerFollowing);
   // console.log(registry);
 
   try {

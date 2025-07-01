@@ -15,6 +15,13 @@
       "when": 1751329553780,
       "tag": "0001_complex_roxanne_simpson",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1751368894150,
+      "tag": "0002_cold_wendigo",
+      "breakpoints": true
     }
   ]
 }
